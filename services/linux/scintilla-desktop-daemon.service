@@ -1,0 +1,19 @@
+[Unit]
+Description=Scintilla Desktop Daemon
+After=network-online.target
+
+[Service]
+Type=simple
+Environment=SCINTILLA_DAEMON_LISTEN=127.0.0.1:32123
+Environment=SCINTILLA_DESKTOP_MANIFEST=%h/.config/scintilla/runtime.local.json
+ExecStart=%h/.local/share/scintilla-desktop/bin/scintilla-desktop-daemon
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.scintilla %h/.local/share/scintilla-desktop %h/.config/scintilla
+
+[Install]
+WantedBy=default.target
