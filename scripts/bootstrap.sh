@@ -38,8 +38,8 @@ chmod 0755 "$BIN/"*
 
 mkdir -p "$STATE/runtime"
 cat > "$STATE/env" <<EOF
-export SCINTILLA_DESKTOP_HOME="$STATE/runtime"
-export SCINTILLA_DAEMON_URL="http://127.0.0.1:32123"
+export SCINTILLA_DAEMON_DATA_DIR="$STATE/runtime"
+export SCINTILLA_DAEMON_URL="http://127.0.0.1:8765"
 export PATH="$BIN:\$PATH"
 EOF
 
