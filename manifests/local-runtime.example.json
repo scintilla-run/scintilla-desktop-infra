@@ -1,0 +1,40 @@
+{
+  "schema": "scintilla.desktop-runtime/v1",
+  "runtime_kind": "scintilla-single-beam",
+  "ingress": {
+    "command": {
+      "program": "/opt/scintilla/ingress/bin/scintilla_ingress",
+      "args": ["foreground"],
+      "cwd": "/opt/scintilla/ingress",
+      "env": { "SCINTILLA_LISTEN": "127.0.0.1:8091" }
+    },
+    "stop": {
+      "command": { "program": "/opt/scintilla/ingress/bin/scintilla_ingress", "args": ["stop"], "cwd": "/opt/scintilla/ingress" },
+      "timeout_seconds": 15
+    },
+    "release_command": "/opt/scintilla/ingress/bin/scintilla_ingress"
+  },
+  "workers": [
+    {
+      "id": "rust-01",
+      "runtime": "rust",
+      "mode": "host",
+      "command": {
+        "program": "/opt/scintilla/workers/scintilla-worker-rust",
+        "args": ["serve"],
+        "env": { "SCINTILLA_WORKER_ENDPOINT": "http://127.0.0.1:8091" }
+      },
+      "stop": { "timeout_seconds": 15 }
+    }
+  ],
+  "preferences": { "keep_scintilla_alive_during_lock_screen": false },
+  "control_plane": {
+    "protocol": "scintilla.local-control/v1",
+    "clients": [
+      {"kind":"cli","capabilities":["status.read","runtime.reconcile","runtime.stop"]},
+      {"kind":"rust_desktop","capabilities":["status.read","runtime.reconcile","runtime.stop"]},
+      {"kind":"flutter_desktop","capabilities":["status.read","runtime.reconcile","runtime.stop"]},
+      {"kind":"flutter_mobile","capabilities":["status.read","mobile.task.execute"]}
+    ]
+  }
+}
