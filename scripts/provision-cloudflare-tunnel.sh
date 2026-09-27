@@ -31,10 +31,9 @@ mkdir -p "$(dirname "$CONFIG_OUT")"
 cloudflared tunnel login
 
 find_tunnel_id() {
-  cloudflared tunnel list --output json | python3 - "$TUNNEL_NAME" <<'PY'
+  cloudflared tunnel list --output json | python3 -c '
 import json
 import sys
-
 name = sys.argv[1]
 items = json.load(sys.stdin)
 matches = [str(item.get("id", "")) for item in items if item.get("name") == name]
@@ -42,7 +41,7 @@ if len(matches) > 1:
     raise SystemExit(f"multiple Cloudflare tunnels named {name!r}")
 if matches:
     print(matches[0])
-PY
+' "$TUNNEL_NAME"
 }
 
 TUNNEL_ID="$(find_tunnel_id)"
