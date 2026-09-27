@@ -1,0 +1,23 @@
+{
+  "schema": "ores.desktop-appliance/v1",
+  "product": "scintilla",
+  "channel": "candidate",
+  "host": {
+    "trust_model": "developer-owned-trusted-host",
+    "daemon_listen": "127.0.0.1:32123",
+    "public_origin": "http://127.0.0.1:8083",
+    "default_reverse_proxy": "none"
+  },
+  "components": [
+    {"name":"desktop-daemon","repo":"scintilla-run/scintilla-desktop-daemon","rev":"79d7c65fe3259bca51a37478f2fa304e459c6818","kind":"rust","promoted":false},
+    {"name":"beam-runner","repo":"scintilla-run/gleam-lambda-runner","rev":"8c427f8b77403b1534753639aa06fb6057268c6d","kind":"gleam-erlang","promoted":true,"standalone_shipment":false},
+    {"name":"cli","repo":"scintilla-run/scintilla-cli","rev":"30e589466d264c7349387bde2dc2d31e9501e10c","kind":"rust","promoted":false},
+    {"name":"integration-superproject","repo":"scintilla-run/scintilla-run-monorepo","rev":"709ff430e1e5655b15d86ccd47ec72abdfcd6774","kind":"integration-only","promoted":true}
+  ],
+  "cloudflare": {"origin":"http://127.0.0.1:8083","credentials_in_repo":false},
+  "update": {"mode":"exact-revision","allow_mutable_latest":false,"rollback":"previous-manifest"},
+  "promotion_gates": {
+    "daemon_ci_green": false,
+    "standalone_beam_shipment": false
+  }
+}
