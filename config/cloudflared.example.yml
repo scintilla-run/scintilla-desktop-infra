@@ -1,0 +1,7 @@
+# Non-secret example only. Keep credentials-file on the local machine.
+tunnel: scintilla-local
+credentials-file: /path/to/.cloudflared/TUNNEL-ID.json
+ingress:
+  - hostname: dev.example.com
+    service: http://127.0.0.1:8091
+  - service: http_status:404
