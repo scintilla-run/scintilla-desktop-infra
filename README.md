@@ -57,3 +57,19 @@ Linux uses a hardened systemd user unit, macOS uses the `run.scintilla.desktop-d
 - remote shell and arbitrary client commands are disabled.
 
 The candidate channel remains promotion-gated until component CI and the standalone BEAM shipment are ready.
+
+## ORES Compose local deployment
+
+The audited local lifecycle is declared in `.ores-compose.yaml`:
+
+```sh
+ores-compose check .ores-compose.yaml
+ores-compose plan .ores-compose.yaml
+ores-compose up .ores-compose.yaml
+```
+
+Cloudflare/public ingress remains promotion-gated until the standalone BEAM ingress and dedicated remote-auth boundary are in the compose lifecycle.
+
+The daemon source is exact-commit pinned, loopback-only, and executed from the built release binary. Stable promotion remains blocked until the daemon repository commits a Cargo lockfile and the build switches to `--locked`.
+
+See [docs/local-deployment.md](docs/local-deployment.md) and [appliance.json](appliance.json) for the audited boundary and promotion gates.

@@ -1,0 +1,22 @@
+schema_version: ores.compose.v1
+project: scintilla-desktop
+allow_lazy_start: false
+source:
+  repository: https://github.com/scintilla-run/scintilla-desktop-daemon.git
+  commit: 64367fb904ca86aa531b0f937695d496524e4fa1
+  checkout_dir: tmp/dev/scintilla-desktop-daemon
+services:
+  daemon:
+    runtime: host
+    build:
+      - ["cargo", "build", "--release"]
+    command: ["./target/release/scintilla-desktop-daemon"]
+    environment:
+      SCINTILLA_DESKTOP_ADDR: "127.0.0.1:8765"
+      SCINTILLA_LOCAL_INGRESS_URL: "http://127.0.0.1:8091"
+      SCINTILLA_START_ERLANG_INGRESS: "false"
+    healthcheck:
+      command: ["curl", "--fail", "--silent", "http://127.0.0.1:8765/healthz"]
+      interval_ms: 250
+      timeout_ms: 1000
+      retries: 20
