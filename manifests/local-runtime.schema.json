@@ -47,6 +47,7 @@
         "hostname": { "type": "string", "minLength": 1 },
         "target": { "type": "string", "pattern": "^http://(127\\.0\\.0\\.1|localhost|\\[::1\\]):[0-9]+$" },
         "credentials_file": { "type": ["string", "null"] },
+        "create": { "type": "boolean" },
         "route_dns": { "type": "boolean" }
       }
     },
