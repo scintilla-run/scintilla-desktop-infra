@@ -1,27 +1,46 @@
 {
-  "version": 1,
+  "schema": "scintilla.desktop-runtime/v1",
   "runtime_kind": "scintilla-single-beam",
-  "shutdown_grace_ms": 3000,
   "ingress": {
-    "name": "scintilla-ingress",
-    "argv": [
-      "__SCINTILLA_INGRESS_BIN__",
-      "foreground"
-    ],
-    "working_dir": "__SCINTILLA_INGRESS_ROOT__",
-    "env": {
-      "SCINTILLA_LISTEN": "127.0.0.1:8083"
+    "command": {
+      "program": "__SCINTILLA_INGRESS_BIN__",
+      "args": ["foreground"],
+      "cwd": "__SCINTILLA_INGRESS_ROOT__",
+      "env": {
+        "SCINTILLA_LISTEN": "127.0.0.1:8091"
+      }
     },
-    "version": "8c427f8b77403b1534753639aa06fb6057268c6d"
+    "stop": {
+      "command": {
+        "program": "__SCINTILLA_INGRESS_BIN__",
+        "args": ["stop"],
+        "cwd": "__SCINTILLA_INGRESS_ROOT__"
+      },
+      "timeout_seconds": 15
+    },
+    "release_command": "__SCINTILLA_INGRESS_BIN__"
   },
   "workers": [],
   "tunnel": {
-    "binary": "cloudflared",
-    "name": "scintilla-local",
+    "tunnel": "scintilla-local",
     "hostname": "dev.example.com",
-    "config": "__CLOUDFLARED_CONFIG__",
-    "autostart": false
+    "target": "http://127.0.0.1:8091",
+    "credentials_file": "__CLOUDFLARED_CREDENTIALS__",
+    "create": false,
+    "route_dns": false
   },
   "update": null,
-  "autostart_ingress": true
+  "preferences": {
+    "keep_scintilla_alive_during_lock_screen": false
+  },
+  "control_plane": {
+    "protocol": "scintilla.local-control/v1",
+    "clients": [
+      {"kind":"cli","capabilities":["status.read","runtime.reconcile","runtime.stop","worker.read","worker.control","tunnel.control","updates.apply","preferences.write"]},
+      {"kind":"rust_desktop","capabilities":["status.read","runtime.reconcile","runtime.stop","worker.read","tunnel.control","preferences.write"]},
+      {"kind":"flutter_desktop","capabilities":["status.read","runtime.reconcile","runtime.stop","worker.read","tunnel.control","preferences.write"]},
+      {"kind":"flutter_mobile","capabilities":["status.read","mobile.task.execute"]},
+      {"kind":"infra","capabilities":["runtime.reconcile","worker.control"]}
+    ]
+  }
 }
