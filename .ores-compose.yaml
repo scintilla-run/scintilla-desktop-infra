@@ -10,7 +10,11 @@ services:
     runtime: host
     build:
       - ["cargo", "build", "--release"]
-    command: ["cargo", "run", "--release"]
+    command: ["./target/release/scintilla-desktop-daemon"]
+    environment:
+      SCINTILLA_DESKTOP_ADDR: "127.0.0.1:8765"
+      SCINTILLA_LOCAL_INGRESS_URL: "http://127.0.0.1:8091"
+      SCINTILLA_START_ERLANG_INGRESS: "false"
     healthcheck:
       command: ["curl", "--fail", "--silent", "http://127.0.0.1:8765/healthz"]
       interval_ms: 250
