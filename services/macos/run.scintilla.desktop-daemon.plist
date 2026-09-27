@@ -4,7 +4,9 @@
   <key>Label</key><string>run.scintilla.desktop-daemon</string>
   <key>ProgramArguments</key><array><string>__BINARY__</string></array>
   <key>EnvironmentVariables</key><dict>
-    <key>SCINTILLA_DAEMON_LISTEN</key><string>127.0.0.1:32123</string>
+    <key>SCINTILLA_DAEMON_LISTEN</key><string>127.0.0.1:8765</string>
+    <key>SCINTILLA_DAEMON_DATA_DIR</key><string>__RUNTIME_DIR__</string>
+    <key>SCINTILLA_DAEMON_FLAGS_CONFIG</key><string>__FLAGS_CONFIG__</string>
     <key>SCINTILLA_DESKTOP_MANIFEST</key><string>__MANIFEST__</string>
   </dict>
   <key>RunAtLoad</key><true/>

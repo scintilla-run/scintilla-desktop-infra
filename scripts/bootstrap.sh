@@ -4,7 +4,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STATE="${SCINTILLA_DESKTOP_STATE:-$ROOT/.desktop}"
 SRC="$STATE/src"
 BIN="$STATE/bin"
-mkdir -p "$SRC" "$BIN" "$STATE/logs"
+CONFIG="$STATE/config"
+mkdir -p "$SRC" "$BIN" "$CONFIG" "$STATE/logs"
 python3 "$ROOT/scripts/validate_manifest.py"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "missing required tool: $1" >&2; exit 1; }; }
@@ -33,13 +34,16 @@ cargo build --locked --release --manifest-path "$SRC/desktop-daemon/Cargo.toml"
 ( cd "$SRC/cli" && zed install --frozen && cargo build --locked --release )
 
 cp "$SRC/desktop-daemon/target/release/scintilla-desktop-daemon" "$BIN/"
+cp "$SRC/desktop-daemon/.cli-flags.toml" "$CONFIG/scintilla-desktop-daemon.cli-flags.toml"
 cp "$SRC/cli/target/release/scintilla" "$BIN/"
-chmod 0755 "$BIN/"*
+cp "$SRC/cli/.cli-flags.toml" "$BIN/.cli-flags.toml"
+chmod 0755 "$BIN/scintilla-desktop-daemon" "$BIN/scintilla"
 
 mkdir -p "$STATE/runtime"
 cat > "$STATE/env" <<EOF
-export SCINTILLA_DESKTOP_HOME="$STATE/runtime"
-export SCINTILLA_DAEMON_URL="http://127.0.0.1:32123"
+export SCINTILLA_DAEMON_DATA_DIR="$STATE/runtime"
+export SCINTILLA_DAEMON_FLAGS_CONFIG="$CONFIG/scintilla-desktop-daemon.cli-flags.toml"
+export SCINTILLA_DAEMON_URL="http://127.0.0.1:8765"
 export PATH="$BIN:\$PATH"
 EOF
 

@@ -1,47 +1,59 @@
 # Scintilla Desktop Infra
 
-Single-host Scintilla appliance for developer-owned laptops and desktops. This repository is intentionally separate from `scintilla-run/scintilla-infra`, which remains the production infrastructure authority.
+Single-host Scintilla appliance and desired-state authority for developer- and end-user-owned laptops/desktops. This repository remains separate from `scintilla-run/scintilla-infra`, which is the production infrastructure authority.
 
 ## Topology
 
 ```text
-Cloudflare edge -> cloudflared -> 127.0.0.1:8083 -> one BEAM ingress/control OS process
+Cloudflare edge -> cloudflared -> 127.0.0.1:8091 -> one BEAM ingress/control OS process
                                                 -> supervised routing/control processes
                                                 -> native/container worker pools
+
+CLI / Rust desktop / Flutter desktop
+             |
+             v
+authenticated 127.0.0.1:8765
+             |
+scintilla-desktop-daemon
+             |
+runtime.local.json desired state
 ```
 
-`scintilla-desktop-daemon` is the machine lifecycle authority. CLI, Flutter, and Rust desktop apps are peer clients of its authenticated loopback API. No nginx/Caddy/HAProxy layer is required by default.
+No nginx/Caddy/HAProxy layer is required by default. The daemon is the single local process authority; normal clients request named transitions and do not supply arbitrary executable commands. Android/iOS hosting uses a separate outbound agent contract rather than exposing this loopback daemon.
 
-## Current state
-
-A real candidate desktop daemon exists and consumes a local `scintilla-single-beam` runtime manifest. It supervises ingress, named host/container workers, Cloudflare Tunnel, digest-checked updates, and keep-awake policy.
-
-The remaining promotion gates are explicit in `appliance.json`: candidate daemon/CLI CI must be green and the BEAM runner must have a supported standalone desktop shipment/entrypoint. Until then this repo is a candidate appliance, not a promoted release.
-
-## Developer bootstrap
+## Bootstrap
 
 ```sh
 ./scripts/bootstrap.sh
 python3 scripts/render_runtime_manifest.py \
   --ingress-bin /absolute/path/to/scintilla-ingress \
   --ingress-root /absolute/path/to/runtime \
-  --cloudflared-config /absolute/path/to/cloudflared.yml
+  --cloudflared-credentials /absolute/path/to/.cloudflared/TUNNEL-ID.json
 ./scripts/doctor.sh
 ./scripts/up.sh
 ./scripts/status.sh
 ```
 
-Exact source revisions are pinned in `appliance.json`; mutable `latest` is not an update mechanism.
+`appliance.json` pins exact component revisions. Bootstrap also installs separate flags-2-env contracts for the public CLI and desktop daemon, so both binaries can run from the same appliance bin directory without configuration collision.
 
 ## Persistent daemon
-
-After bootstrap and rendering `runtime.local.json`, install the daemon under the per-user OS service manager:
 
 ```sh
 ./scripts/install-service.sh
 ./scripts/status.sh
 ```
 
-Linux uses a hardened systemd user unit, macOS uses a LaunchAgent, and Windows uses a logon Scheduled Task via `services/windows/install.ps1`. The service receives the same runtime directory and exact runtime manifest as the foreground lifecycle scripts. Uninstalling the service preserves appliance state.
+Linux uses a hardened systemd user unit, macOS uses the `run.scintilla.desktop-daemon` LaunchAgent, and Windows uses a logon Scheduled Task. All modes carry the same `SCINTILLA_DAEMON_DATA_DIR`, daemon flags contract, and exact runtime manifest. Uninstall preserves appliance state.
 
-The GUI is never the process owner. Closing the Flutter/Rust desktop UI must not tear down the local ingress or worker pools.
+## Contracts and security
+
+- local protocol: `scintilla.local-control/v1`;
+- daemon HTTP: loopback-only at `127.0.0.1:8765`;
+- BEAM ingress: loopback-only at `127.0.0.1:8091`;
+- runtime/worker schemas live under `manifests/`;
+- Cloudflare credential contents stay in cloudflared's local credential store;
+- updates are exact-revision/digest based; mutable `latest` is forbidden;
+- worker runtimes/capabilities are allowlisted;
+- remote shell and arbitrary client commands are disabled.
+
+The candidate channel remains promotion-gated until component CI and the standalone BEAM shipment are ready.

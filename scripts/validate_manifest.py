@@ -6,11 +6,11 @@ errors=[]
 if data.get('schema')!='ores.desktop-appliance/v1': errors.append('unexpected schema')
 if data.get('product')!='scintilla': errors.append('product must be scintilla')
 host=data.get('host',{})
-if host.get('daemon_listen')!='127.0.0.1:32123': errors.append('daemon must bind 127.0.0.1:32123')
-if host.get('public_origin')!='http://127.0.0.1:8083': errors.append('public origin must be loopback :8083')
+if host.get('daemon_listen')!='127.0.0.1:8765': errors.append('daemon must bind 127.0.0.1:8765')
+if host.get('public_origin')!='http://127.0.0.1:8091': errors.append('public origin must be loopback :8091')
 if host.get('default_reverse_proxy')!='none': errors.append('default reverse proxy must be none')
 seen=set()
-for section in ('components','clients'):
+for section in ('components','clients','contracts'):
  for c in data.get(section,[]):
   name=c.get('name'); rev=c.get('rev','')
   key=(section,name)
