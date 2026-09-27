@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd "$(dirname "$0")/.."
-python3 scripts/validate_manifest.py
-for x in git python3 cargo erl rebar3 cloudflared; do command -v "$x" >/dev/null || { echo "missing required tool: $x" >&2; exit 1; }; done
-if [ "$(uname -s)" = Darwin ]; then command -v caffeinate >/dev/null || { echo 'missing caffeinate' >&2; exit 1; }; fi
-echo 'Scintilla desktop appliance prerequisites OK'
-echo 'PROMOTION BLOCKED: executable desktop daemon + dedicated BEAM ingress/control adapter are not yet promoted.'
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+STATE="${SCINTILLA_DESKTOP_STATE:-$ROOT/.desktop}"
+python3 "$ROOT/scripts/validate_manifest.py"
+failed=0
+for tool in git python3 cargo zed cloudflared curl; do
+  if command -v "$tool" >/dev/null 2>&1; then printf 'ok   %s\n' "$tool"; else printf 'MISS %s\n' "$tool" >&2; failed=1; fi
+done
+for binary in scintilla-desktop-daemon scintilla; do
+  if [[ -x "$STATE/bin/$binary" ]]; then printf 'ok   %s\n' "$STATE/bin/$binary"; else printf 'MISS %s\n' "$STATE/bin/$binary" >&2; failed=1; fi
+done
+if [[ -f "$ROOT/runtime.local.json" ]]; then
+  python3 -m json.tool "$ROOT/runtime.local.json" >/dev/null
+  echo "ok   runtime.local.json"
+else
+  echo "BLOCK runtime.local.json missing; render it after installing a standalone BEAM shipment" >&2
+  failed=1
+fi
+exit "$failed"
