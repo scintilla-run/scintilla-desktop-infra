@@ -16,6 +16,7 @@ jobs:
       - run: python scripts/validate_manifest.py
       - run: python -m json.tool appliance.json >/dev/null
       - run: python -m json.tool runtime/desktop-manifest.example.json >/dev/null
+      - run: python tests/manifest-contract/check.py
       - run: bash -n scripts/bootstrap.sh scripts/doctor.sh scripts/up.sh scripts/down.sh scripts/status.sh scripts/install-service.sh scripts/uninstall-service.sh
       - name: Parse PowerShell lifecycle scripts
         shell: pwsh
@@ -34,24 +35,28 @@ jobs:
           python - <<'PY'
           import json, pathlib
           manifest=json.loads(pathlib.Path('appliance.json').read_text())
-          bootstrap=pathlib.Path('scripts/bootstrap.sh').read_text()
-          for item in manifest.get('components', []):
-              rev=item.get('rev')
-              if rev and rev in bootstrap:
-                  raise SystemExit(f"bootstrap duplicates manifest SHA for {item.get('name')}")
+          for bootstrap_path in ('scripts/bootstrap.sh','scripts/bootstrap.ps1'):
+              bootstrap=pathlib.Path(bootstrap_path).read_text()
+              for item in manifest.get('components', []):
+                  rev=item.get('rev')
+                  if rev and rev in bootstrap:
+                      raise SystemExit(f"{bootstrap_path} duplicates manifest SHA for {item.get('name')}")
           PY
       - name: render runtime manifest deterministically
         run: |
-          python scripts/render_runtime_manifest.py --ingress-bin /bin/true --ingress-root /tmp --cloudflared-config /tmp/cloudflared.yml --hostname test.example.com --out /tmp/runtime.json
+          python scripts/render_runtime_manifest.py --ingress-bin /bin/true --ingress-root /tmp --cloudflared-credentials /tmp/cloudflared.json --hostname test.example.com --out /tmp/runtime.json
           python -m json.tool /tmp/runtime.json >/dev/null
-          grep -F '127.0.0.1:8083' /tmp/runtime.json
+          grep -F '127.0.0.1:8091' /tmp/runtime.json
       - name: validate persistent service wiring
         run: |
-          grep -F 'SCINTILLA_DESKTOP_HOME' services/macos/com.scintilla.desktop-daemon.plist
-          grep -F 'SCINTILLA_DESKTOP_MANIFEST' services/macos/com.scintilla.desktop-daemon.plist
-          grep -F 'SCINTILLA_DESKTOP_HOME' services/windows/install.ps1
-          grep -F 'SCINTILLA_DESKTOP_MANIFEST' services/windows/install.ps1
-          grep -F 'SCINTILLA_DESKTOP_MANIFEST' services/linux/scintilla-desktop-daemon.service
+          grep -F 'SCINTILLA_DAEMON_DATA_DIR=__RUNTIME_DIR__' services/linux/scintilla-desktop-daemon.service
+          grep -F 'SCINTILLA_DAEMON_FLAGS_CONFIG=__FLAGS_CONFIG__' services/linux/scintilla-desktop-daemon.service
+          grep -F 'SCINTILLA_DESKTOP_MANIFEST=__MANIFEST__' services/linux/scintilla-desktop-daemon.service
+          grep -F '<key>SCINTILLA_DAEMON_DATA_DIR</key><string>__RUNTIME_DIR__</string>' services/macos/run.scintilla.desktop-daemon.plist
+          grep -F '<key>SCINTILLA_DAEMON_FLAGS_CONFIG</key><string>__FLAGS_CONFIG__</string>' services/macos/run.scintilla.desktop-daemon.plist
+          grep -F 'SCINTILLA_DAEMON_DATA_DIR' services/windows/install.ps1
+          grep -F 'SCINTILLA_DAEMON_FLAGS_CONFIG' services/windows/install.ps1
+          test ! -e services/macos/com.scintilla.desktop-daemon.plist
       - name: ensure one desired-state authority
         run: test ! -e appliance.toml
       - name: reject obvious committed secrets
