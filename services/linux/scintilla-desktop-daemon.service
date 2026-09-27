@@ -7,6 +7,7 @@ Wants=network-online.target
 Type=simple
 Environment=SCINTILLA_DAEMON_LISTEN=127.0.0.1:8765
 Environment=SCINTILLA_DAEMON_DATA_DIR=__RUNTIME_DIR__
+Environment=SCINTILLA_DAEMON_FLAGS_CONFIG=__FLAGS_CONFIG__
 Environment=SCINTILLA_DESKTOP_MANIFEST=__MANIFEST__
 ExecStart=__BINARY__
 Restart=on-failure
