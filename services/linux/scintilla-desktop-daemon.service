@@ -4,7 +4,7 @@ After=network-online.target
 
 [Service]
 Type=simple
-Environment=SCINTILLA_DAEMON_LISTEN=127.0.0.1:32123
+Environment=SCINTILLA_DAEMON_LISTEN=127.0.0.1:8765
 Environment=SCINTILLA_DESKTOP_MANIFEST=%h/.config/scintilla/runtime.local.json
 ExecStart=%h/.local/share/scintilla-desktop/bin/scintilla-desktop-daemon
 Restart=on-failure
