@@ -1,0 +1,15 @@
+[Unit]
+Description=Scintilla desktop control plane
+After=network-online.target
+
+[Service]
+Type=simple
+Environment=SCINTILLA_DESKTOP_MANIFEST=__SCINTILLA_DESKTOP_INFRA__/manifests/local-runtime.json
+ExecStart=/usr/bin/env scintilla-desktop-daemon
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target
