@@ -52,7 +52,7 @@
     {
       "name": "desktop-rust",
       "repo": "scintilla-run/scintilla-desktop-app.rs",
-      "rev": "720028d2a2d29b27d5644be690067750cd8769bd",
+      "rev": "09e345e7c2dfd4ac55f1e7b9d882e9e54de8da95",
       "promoted": false,
       "source_pr": 7
     }
