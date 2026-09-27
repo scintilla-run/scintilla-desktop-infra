@@ -1,0 +1,10 @@
+{
+  "protocol": "scintilla.local-control/v1",
+  "clients": [
+    {"kind":"cli","capabilities":["status.read","runtime.reconcile","runtime.stop","worker.read","worker.control","tunnel.control","updates.apply","preferences.write"]},
+    {"kind":"rust_desktop","capabilities":["status.read","runtime.reconcile","runtime.stop","worker.read","tunnel.control","preferences.write"]},
+    {"kind":"flutter_desktop","capabilities":["status.read","runtime.reconcile","runtime.stop","worker.read","tunnel.control","preferences.write"]},
+    {"kind":"flutter_mobile","capabilities":["status.read","mobile.task.execute"]},
+    {"kind":"infra","capabilities":["runtime.reconcile","worker.control"]}
+  ]
+}
