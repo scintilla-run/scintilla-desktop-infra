@@ -8,6 +8,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 example = json.loads((ROOT / "manifests/local-runtime.example.json").read_text())
 control = json.loads((ROOT / "manifests/control-plane.example.json").read_text())
 lock = json.loads((ROOT / "components.lock.json").read_text())
+appliance = json.loads((ROOT / "appliance.json").read_text())
+runtime_template = json.loads((ROOT / "runtime/desktop-manifest.example.json").read_text())
 
 errors = []
 
@@ -15,6 +17,16 @@ if example.get("schema") != "scintilla.desktop-runtime/v1":
     errors.append("local runtime schema id must be scintilla.desktop-runtime/v1")
 if example.get("runtime_kind") != "scintilla-single-beam":
     errors.append("runtime_kind must be scintilla-single-beam")
+if runtime_template.get("schema") != "scintilla.desktop-runtime/v1":
+    errors.append("renderable runtime template must use scintilla.desktop-runtime/v1")
+if runtime_template.get("runtime_kind") != "scintilla-single-beam":
+    errors.append("renderable runtime template must use scintilla-single-beam")
+if runtime_template.get("ingress", {}).get("command", {}).get("program") is None:
+    errors.append("renderable runtime template must use daemon ingress.command shape")
+if appliance.get("host", {}).get("daemon_listen") != "127.0.0.1:8765":
+    errors.append("appliance daemon_listen must be 127.0.0.1:8765")
+if appliance.get("host", {}).get("public_origin") != "http://127.0.0.1:8091":
+    errors.append("appliance public_origin must match ingress 127.0.0.1:8091")
 
 ingress = example.get("ingress", {})
 program = ingress.get("command", {}).get("program")
