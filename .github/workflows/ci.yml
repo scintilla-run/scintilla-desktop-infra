@@ -16,6 +16,7 @@ jobs:
       - run: python scripts/validate_manifest.py
       - run: python -m json.tool appliance.json >/dev/null
       - run: python -m json.tool runtime/desktop-manifest.example.json >/dev/null
+      - run: python tests/manifest-contract/check.py
       - run: bash -n scripts/bootstrap.sh scripts/doctor.sh
       - name: reject hard-coded component SHAs in bootstrap
         run: |
@@ -30,9 +31,9 @@ jobs:
           PY
       - name: render runtime manifest deterministically
         run: |
-          python scripts/render_runtime_manifest.py --ingress-bin /bin/true --ingress-root /tmp --cloudflared-config /tmp/cloudflared.yml --hostname test.example.com --out /tmp/runtime.json
+          python scripts/render_runtime_manifest.py --ingress-bin /bin/true --ingress-root /tmp --cloudflared-credentials /tmp/cloudflared.json --hostname test.example.com --out /tmp/runtime.json
           python -m json.tool /tmp/runtime.json >/dev/null
-          grep -F '127.0.0.1:8083' /tmp/runtime.json
+          grep -F '127.0.0.1:8091' /tmp/runtime.json
       - name: ensure one desired-state authority
         run: test ! -e appliance.toml
       - name: reject obvious committed secrets
