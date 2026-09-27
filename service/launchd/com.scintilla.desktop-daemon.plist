@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>Label</key><string>com.scintilla.desktop-daemon</string>
+<key>ProgramArguments</key><array><string>/usr/bin/env</string><string>scintilla-desktop-daemon</string></array>
+<key>EnvironmentVariables</key><dict>
+<key>SCINTILLA_DESKTOP_MANIFEST</key><string>__SCINTILLA_DESKTOP_INFRA__/manifests/local-runtime.json</string>
+</dict>
+<key>RunAtLoad</key><true/><key>KeepAlive</key><true/>
+<key>StandardOutPath</key><string>/tmp/scintilla-desktop-daemon.log</string>
+<key>StandardErrorPath</key><string>/tmp/scintilla-desktop-daemon.err</string>
+</dict></plist>
