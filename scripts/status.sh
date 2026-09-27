@@ -10,11 +10,8 @@ if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
 else
   echo "daemon: stopped"
 fi
-TOKEN_FILE="$SCINTILLA_DESKTOP_HOME/token"
-if [[ ! -f "$TOKEN_FILE" ]]; then
-  echo "daemon token missing: $TOKEN_FILE" >&2
-  exit 1
-fi
+TOKEN_FILE="$SCINTILLA_DAEMON_DATA_DIR/token"
+test -f "$TOKEN_FILE" || { echo "daemon token missing: $TOKEN_FILE" >&2; exit 1; }
 TOKEN="$(cat "$TOKEN_FILE")"
-curl --fail --silent -H "Authorization: Bearer $TOKEN" http://127.0.0.1:32123/v1/status
+curl --fail --silent -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/status
 echo
