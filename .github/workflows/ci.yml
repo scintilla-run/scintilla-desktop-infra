@@ -16,7 +16,7 @@ jobs:
       - run: python scripts/validate_manifest.py
       - run: python -m json.tool appliance.json >/dev/null
       - run: python -m json.tool runtime/desktop-manifest.example.json >/dev/null
-      - run: bash -n scripts/bootstrap.sh scripts/doctor.sh scripts/up.sh scripts/down.sh scripts/status.sh scripts/install-service.sh scripts/uninstall-service.sh
+      - run: bash -n scripts/bootstrap.sh scripts/doctor.sh scripts/up.sh scripts/down.sh scripts/status.sh scripts/install-service.sh scripts/uninstall-service.sh scripts/provision-cloudflare-tunnel.sh
       - name: Parse PowerShell lifecycle scripts
         shell: pwsh
         run: |
@@ -24,6 +24,7 @@ jobs:
           foreach ($path in @(
             "scripts/bootstrap.ps1",
             "scripts/status.ps1",
+            "scripts/provision-cloudflare-tunnel.ps1",
             "services/windows/install.ps1",
             "services/windows/uninstall.ps1"
           )) {
@@ -40,11 +41,42 @@ jobs:
               if rev and rev in bootstrap:
                   raise SystemExit(f"bootstrap duplicates manifest SHA for {item.get('name')}")
           PY
+      - name: validate exact candidate provenance
+        run: |
+          python - <<'PY'
+          import json, pathlib, re
+          doc=json.loads(pathlib.Path('appliance.json').read_text())
+          for section in ('components','clients'):
+              for item in doc.get(section, []):
+                  if not re.fullmatch(r'[0-9a-f]{40}', item.get('rev','')):
+                      raise SystemExit(f"{section}/{item.get('name')}: source rev is not exact")
+                  if item.get('source_pr') is not None and item.get('promoted') is not False:
+                      raise SystemExit(f"{section}/{item.get('name')}: open-PR candidate cannot be promoted")
+          if doc.get('channel') != 'candidate':
+              raise SystemExit('PR-head appliance must remain candidate')
+          if any(doc.get('promotion_gates', {}).values()):
+              raise SystemExit('candidate promotion gates must remain false until executable evidence exists')
+          PY
       - name: render runtime manifest deterministically
         run: |
           python scripts/render_runtime_manifest.py --ingress-bin /bin/true --ingress-root /tmp --cloudflared-config /tmp/cloudflared.yml --hostname test.example.com --out /tmp/runtime.json
           python -m json.tool /tmp/runtime.json >/dev/null
           grep -F '127.0.0.1:8083' /tmp/runtime.json
+      - name: validate Cloudflare runtime boundary
+        run: |
+          grep -F 'credentials-file:' cloudflare/config.example.yml
+          grep -F 'service: http://127.0.0.1:8083' cloudflare/config.example.yml
+          grep -F 'service: http_status:404' cloudflare/config.example.yml
+          grep -F 'cloudflared tunnel route dns' scripts/provision-cloudflare-tunnel.sh
+          grep -F 'cloudflared tunnel route dns' scripts/provision-cloudflare-tunnel.ps1
+          python - <<'PY'
+          import json, pathlib
+          doc=json.loads(pathlib.Path('appliance.json').read_text())
+          cf=doc['cloudflare']
+          assert cf['credentials_in_repo'] is False
+          assert cf['dns_route_owner'] == 'bootstrap'
+          assert cf['runtime_owner'] == 'desktop-daemon'
+          PY
       - name: validate persistent service wiring
         run: |
           grep -F 'SCINTILLA_DESKTOP_HOME' services/macos/com.scintilla.desktop-daemon.plist
