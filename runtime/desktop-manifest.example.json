@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "runtime_kind": "scintilla-single-beam",
+  "shutdown_grace_ms": 3000,
+  "ingress": {
+    "name": "scintilla-ingress",
+    "argv": ["__SCINTILLA_INGRESS_BIN__", "foreground"],
+    "working_dir": "__SCINTILLA_INGRESS_ROOT__",
+    "env": {"SCINTILLA_LISTEN": "127.0.0.1:8083"},
+    "version": "8c427f8b77403b1534753639aa06fb6057268c6d"
+  },
+  "workers": [],
+  "tunnel": {
+    "binary": "cloudflared",
+    "name": "scintilla-local",
+    "hostname": "dev.example.com",
+    "config": "__CLOUDFLARED_CONFIG__"
+  },
+  "update": null
+}
