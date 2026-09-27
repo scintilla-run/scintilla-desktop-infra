@@ -1,0 +1,22 @@
+{
+  "manifest_version": 1,
+  "runtime_kind": "scintilla-single-beam",
+  "example_only": true,
+  "ingress": {
+    "component": "scintilla-ingress",
+    "version": "REPLACE_WITH_PINNED_VERSION",
+    "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "argv": ["scintilla-ingress", "foreground"]
+  },
+  "listen": {"host": "127.0.0.1", "port": 8080},
+  "health": {"readiness_path": "/readyz", "startup_timeout_ms": 30000},
+  "worker_policy": {
+    "allowed_modes": ["host", "container"],
+    "allowed_runtimes": ["rust", "typescript", "python", "go"],
+    "max_concurrent_workers": 16,
+    "inherit_ambient_env": false
+  },
+  "tunnel": {"enabled": false, "name": "", "hostname": "", "config_path": ""},
+  "lifecycle": {"startup_grace_ms": 30000, "shutdown_grace_ms": 15000, "drain_grace_ms": 30000},
+  "keep_awake": {"enabled": false}
+}

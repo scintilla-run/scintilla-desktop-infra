@@ -1,0 +1,19 @@
+schema_version = "scintilla.desktop.infra.v1"
+manifest = "manifests/local-runtime.example.json"
+components_lock = "components.lock.json"
+
+[state]
+root = "${XDG_STATE_HOME:-~/.local/state}/scintilla"
+
+[ipc]
+transport = "auto"
+loopback_fallback = false
+
+[security]
+allow_non_loopback_origin = false
+allow_cloudflared_token_argv = false
+inherit_ambient_worker_env = false
+
+[updates]
+require_digest = true
+rollback_on_failed_readiness = true

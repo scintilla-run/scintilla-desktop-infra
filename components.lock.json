@@ -1,0 +1,6 @@
+{
+  "lock_version": 1,
+  "resolved": false,
+  "components": [],
+  "note": "Fail-closed bootstrap lock. Release automation must resolve immutable daemon, ingress, and adapter versions/digests before installation."
+}
