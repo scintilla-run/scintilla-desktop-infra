@@ -2,8 +2,8 @@
 set -euo pipefail
 case "$(uname -s)" in
   Darwin)
-    target="$HOME/Library/LaunchAgents/com.scintilla.desktop-daemon.plist"
-    launchctl bootout "gui/$(id -u)/com.scintilla.desktop-daemon" >/dev/null 2>&1 || true
+    target="$HOME/Library/LaunchAgents/run.scintilla.desktop-daemon.plist"
+    launchctl bootout "gui/$(id -u)/run.scintilla.desktop-daemon" >/dev/null 2>&1 || true
     rm -f "$target"
     ;;
   Linux)
