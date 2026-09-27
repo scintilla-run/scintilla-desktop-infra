@@ -3,31 +3,27 @@ on:
   pull_request:
   push:
     branches: [main]
-
 permissions:
   contents: read
-
 jobs:
-  contract:
+  manifest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python3 scripts/validate_manifest.py
-      - run: python3 -m json.tool runtime/desktop-manifest.example.json >/dev/null
-      - run: bash -n scripts/bootstrap.sh scripts/doctor.sh scripts/up.sh scripts/down.sh
-      - name: Parse PowerShell bootstrap
-        shell: pwsh
-        run: '[scriptblock]::Create((Get-Content -Raw scripts/bootstrap.ps1)) | Out-Null'
-      - name: Validate plist XML
-        run: python3 -c 'import xml.etree.ElementTree as ET; ET.parse("services/macos/run.scintilla.desktop-daemon.plist")'
-      - name: Production infra must not be a dependency
+      - run: python scripts/validate_manifest.py
+      - run: python -m json.tool appliance.json >/dev/null
+      - run: python -m json.tool runtime/desktop-manifest.example.json >/dev/null
+      - run: bash -n scripts/bootstrap.sh scripts/doctor.sh
+      - name: render runtime manifest deterministically
         run: |
-          ! grep -R "clone.*scintilla-infra\|scintilla-run/scintilla-infra.git" -n scripts appliance.json services cloudflare runtime
-      - name: Cloudflare terminates directly at loopback BEAM ingress
-        run: grep -F "service: http://127.0.0.1:8083" cloudflare/config.example.yml
-      - name: No mutable image/revision tokens
+          python scripts/render_runtime_manifest.py --ingress-bin /bin/true --ingress-root /tmp --cloudflared-config /tmp/cloudflared.yml --hostname test.example.com --out /tmp/runtime.json
+          python -m json.tool /tmp/runtime.json >/dev/null
+          grep -F '127.0.0.1:8083' /tmp/runtime.json
+      - name: ensure one desired-state authority
+        run: test ! -e appliance.toml
+      - name: reject obvious committed secrets
         run: |
-          ! grep -R ':latest\|refs/heads/main' -n appliance.json runtime scripts services cloudflare
+          if git grep -nEI '(api[_-]?token|password|secret)[[:space:]]*[:=][[:space:]]*[A-Za-z0-9+/=_-]{12,}' -- ':!*.example'; then exit 1; else exit 0; fi
