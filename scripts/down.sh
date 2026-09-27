@@ -5,11 +5,11 @@ STATE="${SCINTILLA_DESKTOP_STATE:-$ROOT/.desktop}"
 
 if [[ -f "$STATE/env" ]]; then
   source "$STATE/env"
-  if [[ -f "$SCINTILLA_DESKTOP_HOME/token" ]]; then
-    TOKEN="$(cat "$SCINTILLA_DESKTOP_HOME/token")"
+  if [[ -f "$SCINTILLA_DAEMON_DATA_DIR/token" ]]; then
+    TOKEN="$(cat "$SCINTILLA_DAEMON_DATA_DIR/token")"
     AUTH="Authorization: Bearer $TOKEN"
-    curl --silent -X POST -H "$AUTH" http://127.0.0.1:32123/v1/tunnel/stop >/dev/null || true
-    curl --silent -X POST -H "$AUTH" http://127.0.0.1:32123/v1/servers/stop >/dev/null || true
+    curl --silent -X POST -H "$AUTH" http://127.0.0.1:8765/v1/tunnel/stop >/dev/null || true
+    curl --silent -X POST -H "$AUTH" http://127.0.0.1:8765/v1/runtime/stop >/dev/null || true
   fi
 fi
 
