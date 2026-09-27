@@ -1,0 +1,4 @@
+.desktop/
+.env
+*.log
+runtime.local.json
