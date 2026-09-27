@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scintilla.run/schemas/desktop/worker-v1.json",
+  "title": "Scintilla desktop worker",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "runtime", "mode"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,128}$" },
+    "runtime": { "enum": ["erlang", "gleam", "rust", "typescript", "javascript", "python", "go"] },
+    "mode": { "enum": ["host", "container"] },
+    "command": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["program"],
+      "properties": {
+        "program": { "type": "string", "minLength": 1 },
+        "args": { "type": "array", "maxItems": 256, "items": { "type": "string" } },
+        "cwd": { "type": ["string", "null"] },
+        "env": { "type": "object", "maxProperties": 256, "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" }, "additionalProperties": { "type": "string" } }
+      }
+    },
+    "stop": { "type": "object", "additionalProperties": false, "properties": { "timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 300 } } },
+    "engine": { "enum": ["docker", "podman", null] },
+    "image": { "type": ["string", "null"] },
+    "args": { "type": "array", "maxItems": 256, "items": { "type": "string" } },
+    "env": { "type": "object", "maxProperties": 256, "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" }, "additionalProperties": { "type": "string" } }
+  },
+  "allOf": [
+    { "if": { "properties": { "mode": { "const": "host" } } }, "then": { "required": ["command"] } },
+    { "if": { "properties": { "mode": { "const": "container" } } }, "then": { "required": ["image"] } }
+  ]
+}
