@@ -1,0 +1,17 @@
+{
+  "schema": "scintilla.desktop-components-lock/v1",
+  "components": {
+    "desktop_daemon": {
+      "repository": "scintilla-run/scintilla-desktop-daemon",
+      "ref": "main",
+      "sha256": "REPLACE_DURING_RELEASE"
+    },
+    "ingress": {
+      "repository": "scintilla-run/scintilla-run-monorepo",
+      "artifact": "scintilla_ingress",
+      "version": "dev",
+      "sha256": "REPLACE_DURING_RELEASE"
+    }
+  },
+  "worker_images": {}
+}
