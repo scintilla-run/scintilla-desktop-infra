@@ -9,21 +9,79 @@
     "default_reverse_proxy": "none"
   },
   "components": [
-    {"name":"desktop-daemon","repo":"scintilla-run/scintilla-desktop-daemon","rev":"a0539944ae4a8f45b5122a96889f3a2ee17a4153","kind":"rust","promoted":false},
-    {"name":"beam-runner","repo":"scintilla-run/gleam-lambda-runner","rev":"8c427f8b77403b1534753639aa06fb6057268c6d","kind":"gleam-erlang","promoted":true,"standalone_shipment":false},
-    {"name":"cli","repo":"scintilla-run/scintilla-cli","rev":"f3f5cefb02b6b155d7ac7ae714346e401a9f525e","kind":"rust","promoted":false},
-    {"name":"integration-superproject","repo":"scintilla-run/scintilla-run-monorepo","rev":"709ff430e1e5655b15d86ccd47ec72abdfcd6774","kind":"integration-only","promoted":true}
+    {
+      "name": "desktop-daemon",
+      "repo": "scintilla-run/scintilla-desktop-daemon",
+      "rev": "707807a7c9cfe39153b70732688d821aeedee3c5",
+      "kind": "rust",
+      "promoted": false,
+      "source_pr": 6
+    },
+    {
+      "name": "beam-runner",
+      "repo": "scintilla-run/gleam-lambda-runner",
+      "rev": "8c427f8b77403b1534753639aa06fb6057268c6d",
+      "kind": "gleam-erlang",
+      "promoted": true,
+      "standalone_shipment": false
+    },
+    {
+      "name": "cli",
+      "repo": "scintilla-run/scintilla-cli",
+      "rev": "05dfb00d0fe57d21f5ff08dc8aa6930fd0718c7a",
+      "kind": "rust",
+      "promoted": false,
+      "source_pr": 34
+    },
+    {
+      "name": "integration-superproject",
+      "repo": "scintilla-run/scintilla-run-monorepo",
+      "rev": "709ff430e1e5655b15d86ccd47ec72abdfcd6774",
+      "kind": "integration-only",
+      "promoted": true
+    }
   ],
   "clients": [
-    {"name":"flutter","repo":"scintilla-run/scintilla-flutter","rev":"4399aa962b1d2871f890d72069cd4b493042144e","promoted":false},
-    {"name":"desktop-rust","repo":"scintilla-run/scintilla-desktop-app.rs","rev":"2945fba45154615b63f977a47ae8c57c320f49d0","promoted":false}
+    {
+      "name": "flutter",
+      "repo": "scintilla-run/scintilla-flutter",
+      "rev": "5d07b70b61242c24f0f2e5d25ac573203ae4ed47",
+      "promoted": false,
+      "source_pr": 14
+    },
+    {
+      "name": "desktop-rust",
+      "repo": "scintilla-run/scintilla-desktop-app.rs",
+      "rev": "720028d2a2d29b27d5644be690067750cd8769bd",
+      "promoted": false,
+      "source_pr": 7
+    }
   ],
-  "cloudflare": {"origin":"http://127.0.0.1:8083","credentials_in_repo":false},
-  "update": {"mode":"exact-revision","allow_mutable_latest":false,"rollback":"previous-manifest"},
+  "cloudflare": {
+    "origin": "http://127.0.0.1:8083",
+    "credentials_in_repo": false,
+    "dns_route_owner": "bootstrap",
+    "runtime_owner": "desktop-daemon"
+  },
+  "update": {
+    "mode": "exact-revision",
+    "allow_mutable_latest": false,
+    "rollback": "previous-manifest"
+  },
   "promotion_gates": {
+    "actions_runner_admission": false,
     "private_repo_ci_evidence": false,
     "daemon_ci_green": false,
     "cli_ci_green": false,
+    "native_rust_ci_green": false,
+    "flutter_ci_green": false,
+    "daemon_lockfile_committed": false,
+    "native_rust_lockfile_committed": false,
     "standalone_beam_shipment": false
+  },
+  "external_certification": {
+    "daemon": "scintilla-run-test/infra-serverless-e2e#10",
+    "native_rust": "scintilla-run-test/rust-app-ui-e2e#8",
+    "status": "blocked-before-first-step"
   }
 }
