@@ -17,6 +17,17 @@ jobs:
       - run: python -m json.tool appliance.json >/dev/null
       - run: python -m json.tool runtime/desktop-manifest.example.json >/dev/null
       - run: bash -n scripts/bootstrap.sh scripts/doctor.sh
+      - name: reject hard-coded component SHAs in bootstrap
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          manifest=json.loads(pathlib.Path('appliance.json').read_text())
+          bootstrap=pathlib.Path('scripts/bootstrap.sh').read_text()
+          for item in manifest.get('components', []):
+              rev=item.get('rev')
+              if rev and rev in bootstrap:
+                  raise SystemExit(f"bootstrap duplicates manifest SHA for {item.get('name')}")
+          PY
       - name: render runtime manifest deterministically
         run: |
           python scripts/render_runtime_manifest.py --ingress-bin /bin/true --ingress-root /tmp --cloudflared-config /tmp/cloudflared.yml --hostname test.example.com --out /tmp/runtime.json
