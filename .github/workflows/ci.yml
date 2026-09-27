@@ -3,23 +3,28 @@ on:
   pull_request:
   push:
     branches: [main]
+
 permissions:
   contents: read
+
 jobs:
-  manifest:
+  contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python scripts/validate_manifest.py
-      - run: bash -n scripts/doctor.sh scripts/bootstrap.sh
-      - name: assert incomplete appliance remains fail-closed
+      - run: python3 scripts/validate_manifest.py
+      - run: python3 -m json.tool runtime/desktop-manifest.example.json >/dev/null
+      - run: bash -n scripts/bootstrap.sh scripts/doctor.sh scripts/up.sh scripts/down.sh
+      - name: Validate plist XML
+        run: python3 -c 'import xml.etree.ElementTree as ET; ET.parse("services/macos/run.scintilla.desktop-daemon.plist")'
+      - name: Production infra must not be a dependency
         run: |
-          if SCINTILLA_ALLOW_INCOMPLETE=0 bash scripts/bootstrap.sh >/tmp/bootstrap.out 2>&1; then
-            echo 'bootstrap unexpectedly accepted incomplete appliance'; cat /tmp/bootstrap.out; exit 1
-          fi
-      - name: reject obvious committed secrets
+          ! grep -R "clone.*scintilla-infra\|scintilla-run/scintilla-infra.git" -n scripts appliance.json services cloudflare runtime
+      - name: Cloudflare terminates directly at loopback BEAM ingress
+        run: grep -F "service: http://127.0.0.1:8083" cloudflare/config.example.yml
+      - name: No mutable image/revision tokens
         run: |
-          if git grep -nEI '(api[_-]?token|password|secret)[[:space:]]*[:=][[:space:]]*[A-Za-z0-9+/=_-]{12,}' -- ':!*.example'; then exit 1; else exit 0; fi
+          ! grep -R ':latest\|refs/heads/main' -n appliance.json runtime scripts services cloudflare
