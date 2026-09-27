@@ -1,0 +1,24 @@
+schema_version = "scintilla.desktop.infra.v1"
+
+[control_plane]
+# The local Scintilla API that scintilla-cli should deploy to after it asks the
+# desktop daemon for status. Keep this loopback unless the ingress process has
+# its own explicit authentication and network policy.
+api_url = "http://127.0.0.1:8787"
+
+[processes.ingress]
+command = "scintilla-ingress"
+args = ["serve", "--listen", "127.0.0.1:8787"]
+capabilities = ["control_plane", "beam_hot_reload"]
+
+[processes.worker_supervisor]
+command = "scintilla-worker-supervisor"
+args = ["serve"]
+capabilities = ["native_worker", "container_worker"]
+
+# cloudflared reads its own local credential/config store. Do not put a
+# Cloudflare API token, tunnel credential, or certificate content here.
+[processes.cloudflare_tunnel]
+command = "cloudflared"
+args = ["tunnel", "run", "scintilla-local"]
+capabilities = ["cloudflare_tunnel"]
