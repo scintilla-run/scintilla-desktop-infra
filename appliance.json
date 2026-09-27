@@ -9,13 +9,13 @@
     "default_reverse_proxy": "none"
   },
   "components": [
-    {"name":"desktop-daemon","repo":"scintilla-run/scintilla-desktop-daemon","rev":"3edfb376e2f64276defe97f175f2190bd77b2a92","kind":"rust","promoted":false},
+    {"name":"desktop-daemon","repo":"scintilla-run/scintilla-desktop-daemon","rev":"a0539944ae4a8f45b5122a96889f3a2ee17a4153","kind":"rust","promoted":false},
     {"name":"beam-runner","repo":"scintilla-run/gleam-lambda-runner","rev":"8c427f8b77403b1534753639aa06fb6057268c6d","kind":"gleam-erlang","promoted":true,"standalone_shipment":false},
-    {"name":"cli","repo":"scintilla-run/scintilla-cli","rev":"c9d88d71e6cf7b2e2f59108a6c6fe692f850626f","kind":"rust","promoted":false},
+    {"name":"cli","repo":"scintilla-run/scintilla-cli","rev":"f3f5cefb02b6b155d7ac7ae714346e401a9f525e","kind":"rust","promoted":false},
     {"name":"integration-superproject","repo":"scintilla-run/scintilla-run-monorepo","rev":"709ff430e1e5655b15d86ccd47ec72abdfcd6774","kind":"integration-only","promoted":true}
   ],
   "clients": [
-    {"name":"flutter","repo":"scintilla-run/scintilla-flutter","rev":"9d4f152f673969187a08ae8725013096c826c21c","promoted":false},
+    {"name":"flutter","repo":"scintilla-run/scintilla-flutter","rev":"4399aa962b1d2871f890d72069cd4b493042144e","promoted":false},
     {"name":"desktop-rust","repo":"scintilla-run/scintilla-desktop-app.rs","rev":"2945fba45154615b63f977a47ae8c57c320f49d0","promoted":false}
   ],
   "cloudflare": {"origin":"http://127.0.0.1:8083","credentials_in_repo":false},
