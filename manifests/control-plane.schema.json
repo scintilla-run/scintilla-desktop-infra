@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scintilla.run/schemas/desktop/control-plane-v1.json",
+  "title": "Scintilla local control-plane capabilities",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "clients"],
+  "properties": {
+    "protocol": { "const": "scintilla.local-control/v1" },
+    "clients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "capabilities"],
+        "properties": {
+          "kind": { "enum": ["cli", "rust_desktop", "flutter_desktop", "flutter_mobile", "infra"] },
+          "capabilities": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "enum": ["status.read", "runtime.reconcile", "runtime.stop", "worker.read", "worker.control", "tunnel.control", "updates.apply", "preferences.write", "mobile.task.execute"] }
+          }
+        }
+      }
+    }
+  }
+}
