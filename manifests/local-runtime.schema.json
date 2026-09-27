@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scintilla.run/schemas/desktop/local-runtime-v1.json",
+  "title": "Scintilla desktop local runtime",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "runtime_kind", "ingress", "workers"],
+  "properties": {
+    "schema": { "const": "scintilla.desktop-runtime/v1" },
+    "runtime_kind": { "const": "scintilla-single-beam" },
+    "ingress": { "$ref": "#/$defs/ingress" },
+    "workers": { "type": "array", "maxItems": 64, "items": { "$ref": "worker.schema.json" } },
+    "tunnel": { "$ref": "#/$defs/tunnel" },
+    "preferences": { "$ref": "#/$defs/preferences" },
+    "control_plane": { "$ref": "control-plane.schema.json" }
+  },
+  "$defs": {
+    "command": {
+      "type": "object", "additionalProperties": false, "required": ["program"],
+      "properties": {
+        "program": { "type": "string", "minLength": 1 },
+        "args": { "type": "array", "maxItems": 256, "items": { "type": "string" } },
+        "cwd": { "type": ["string", "null"] },
+        "env": { "type": "object", "maxProperties": 256, "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" }, "additionalProperties": { "type": "string" } }
+      }
+    },
+    "stop": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "command": { "anyOf": [{ "$ref": "#/$defs/command" }, { "type": "null" }] },
+        "timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 300 }
+      }
+    },
+    "ingress": {
+      "type": "object", "additionalProperties": false, "required": ["command"],
+      "properties": {
+        "command": { "$ref": "#/$defs/command" },
+        "stop": { "$ref": "#/$defs/stop" },
+        "release_command": { "type": ["string", "null"] }
+      }
+    },
+    "tunnel": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "properties": {
+        "tunnel": { "type": "string", "minLength": 1 },
+        "hostname": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "pattern": "^http://(127\\.0\\.0\\.1|localhost|\\[::1\\]):[0-9]+$" },
+        "credentials_file": { "type": ["string", "null"] },
+        "route_dns": { "type": "boolean" }
+      }
+    },
+    "preferences": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "keep_scintilla_alive_during_lock_screen": { "type": "boolean" } }
+    }
+  }
+}
