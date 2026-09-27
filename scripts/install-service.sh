@@ -4,9 +4,11 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STATE="${SCINTILLA_DESKTOP_STATE:-$ROOT/.desktop}"
 BINARY="$STATE/bin/scintilla-desktop-daemon"
 RUNTIME="$STATE/runtime"
+FLAGS_CONFIG="$STATE/config/scintilla-desktop-daemon.cli-flags.toml"
 MANIFEST="${SCINTILLA_DESKTOP_MANIFEST:-$ROOT/runtime.local.json}"
 LOGS="$STATE/logs"
 test -x "$BINARY" || { echo "run scripts/bootstrap.sh first; missing $BINARY" >&2; exit 1; }
+test -f "$FLAGS_CONFIG" || { echo "missing daemon flags config: $FLAGS_CONFIG" >&2; exit 1; }
 test -f "$MANIFEST" || { echo "missing runtime manifest: $MANIFEST" >&2; exit 1; }
 mkdir -p "$RUNTIME" "$LOGS"
 escape_sed() { printf '%s' "$1" | sed -e 's/[&|]/\\&/g'; }
@@ -14,7 +16,7 @@ case "$(uname -s)" in
   Darwin)
     target="$HOME/Library/LaunchAgents/run.scintilla.desktop-daemon.plist"
     mkdir -p "$(dirname "$target")"
-    sed       -e "s|__BINARY__|$(escape_sed "$BINARY")|g"       -e "s|__RUNTIME_DIR__|$(escape_sed "$RUNTIME")|g"       -e "s|__MANIFEST__|$(escape_sed "$MANIFEST")|g"       -e "s|__LOG_DIR__|$(escape_sed "$LOGS")|g"       "$ROOT/services/macos/run.scintilla.desktop-daemon.plist" > "$target"
+    sed       -e "s|__BINARY__|$(escape_sed "$BINARY")|g"       -e "s|__RUNTIME_DIR__|$(escape_sed "$RUNTIME")|g"       -e "s|__FLAGS_CONFIG__|$(escape_sed "$FLAGS_CONFIG")|g"       -e "s|__MANIFEST__|$(escape_sed "$MANIFEST")|g"       -e "s|__LOG_DIR__|$(escape_sed "$LOGS")|g"       "$ROOT/services/macos/run.scintilla.desktop-daemon.plist" > "$target"
     chmod 600 "$target"
     launchctl bootout "gui/$(id -u)/run.scintilla.desktop-daemon" >/dev/null 2>&1 || true
     launchctl bootstrap "gui/$(id -u)" "$target"
@@ -26,7 +28,7 @@ case "$(uname -s)" in
     unit_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
     target="$unit_dir/scintilla-desktop-daemon.service"
     mkdir -p "$unit_dir"
-    sed       -e "s|__BINARY__|$(escape_sed "$BINARY")|g"       -e "s|__RUNTIME_DIR__|$(escape_sed "$RUNTIME")|g"       -e "s|__MANIFEST__|$(escape_sed "$MANIFEST")|g"       -e "s|__STATE_DIR__|$(escape_sed "$STATE")|g"       -e "s|__MANIFEST_DIR__|$(escape_sed "$(dirname "$MANIFEST")")|g"       "$ROOT/services/linux/scintilla-desktop-daemon.service" > "$target"
+    sed       -e "s|__BINARY__|$(escape_sed "$BINARY")|g"       -e "s|__RUNTIME_DIR__|$(escape_sed "$RUNTIME")|g"       -e "s|__FLAGS_CONFIG__|$(escape_sed "$FLAGS_CONFIG")|g"       -e "s|__MANIFEST__|$(escape_sed "$MANIFEST")|g"       -e "s|__STATE_DIR__|$(escape_sed "$STATE")|g"       -e "s|__MANIFEST_DIR__|$(escape_sed "$(dirname "$MANIFEST")")|g"       "$ROOT/services/linux/scintilla-desktop-daemon.service" > "$target"
     chmod 600 "$target"
     systemctl --user daemon-reload
     systemctl --user enable --now scintilla-desktop-daemon.service
