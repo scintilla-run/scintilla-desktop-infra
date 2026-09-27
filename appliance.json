@@ -45,7 +45,7 @@
     {
       "name": "flutter",
       "repo": "scintilla-run/scintilla-flutter",
-      "rev": "5d07b70b61242c24f0f2e5d25ac573203ae4ed47",
+      "rev": "f5aac3d53d050e8a17cb7b2be060665a9237b6be",
       "promoted": false,
       "source_pr": 14
     },
