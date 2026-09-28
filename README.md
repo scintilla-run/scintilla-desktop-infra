@@ -83,7 +83,7 @@ Current state is intentionally `awaiting-repository` with a null revision becaus
 
 ## Hot-reload routing and middleware
 
-This product consumes the shared ORES generation model with **native atomic route generations + external middleware process generations** as its default. Routing/middleware is a separate lifecycle and memory/failure boundary from standalone servers and lambda/actor workers, so route or middleware updates do not restart unrelated compute.
+This product consumes the shared ORES generation model with **BEAM route ownership + OTP hot-code/release upgrades** as its default. Routing/middleware is a separate lifecycle and memory/failure boundary from standalone servers and lambda/actor workers, so route or middleware updates do not restart unrelated compute.
 
 `hot-reload-policy.json` declares the product policy. The edge may optionally use nginx, HAProxy, or Caddy. nginx uses validated worker-generation reloads; HAProxy prefers Runtime API changes and falls back to master-worker reload for structural changes; Caddy uses its transactional Admin API. Proxy-managed application routes are opt-in and limited to declarative routing/middleware. Arbitrary middleware code stays in BEAM, Wasm, or a separately supervised process generation.
 
