@@ -1,7 +1,6 @@
 name: common-generation-conformance
 
 on:
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -21,6 +20,7 @@ jobs:
         with:
           repository: ORESoftware/ores-common-desktop-infra
           ref: c98aee842535429bc07b5e4437a2fb84d8f00d25
+          token: ${{ secrets.FLEET_GITHUB_READ_TOKEN }}
           persist-credentials: false
           path: common
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
