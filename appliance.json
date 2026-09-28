@@ -88,7 +88,8 @@
     "cli_ci_green": false,
     "standalone_beam_shipment": false,
     "public_ingress_ready": false,
-    "daemon_lockfile_committed": false
+    "daemon_lockfile_committed": false,
+    "common_layer_pinned": false
   },
   "orchestrator": {
     "engine": "ores-compose",
@@ -96,5 +97,21 @@
     "public_config": null,
     "source_role": "desktop-daemon",
     "shutdown_timeout_ms": 5000
+  },
+  "common_layer": {
+    "repository": "ORESoftware/ores-common-desktop-infra",
+    "checkout_dir": "tmp/dev/ores-common-desktop-infra",
+    "status": "awaiting-repository",
+    "revision": null,
+    "capabilities": [
+      "consumer-validation",
+      "loopback-policy",
+      "secret-file-policy",
+      "cloudflare-policy",
+      "update-policy",
+      "process-lifecycle",
+      "health-readiness",
+      "structured-logging"
+    ]
   }
 }
