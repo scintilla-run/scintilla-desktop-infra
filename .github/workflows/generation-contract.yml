@@ -16,41 +16,12 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
+        with:
+          toolchain: 1.82.0
       - name: Validate generation lifecycle contract
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import json
-          import pathlib
-          import string
-
-          doc = json.loads(pathlib.Path("ores-generation-contract.json").read_text())
-          expected = [
-              "prepare",
-              "validate",
-              "compile_build_generation",
-              "stage",
-              "health_check",
-              "atomic_activate",
-              "bounded_drain",
-              "commit",
-          ]
-          assert doc["schema"] == "ores.desktop-generation-consumer/v1"
-          assert doc["lifecycle"] == expected
-          revision = doc["authority"]["revision"]
-          assert len(revision) == 40
-          assert all(char in string.hexdigits for char in revision)
-          assert doc["rollback"]["required_before_commit"] is True
-          assert doc["rollback"]["retain_previous_generation"] is True
-          assert doc["request_semantics"]["new_requests"] == "active_generation"
-          assert doc["request_semantics"]["existing_requests"] == "pinned_generation"
-          assert doc["request_semantics"]["generation_identity_required"] is True
-          assert doc["routing"]["edge_proxy_route_authority"] is False
-          assert {"nginx", "haproxy", "caddy"}.issubset(doc["routing"]["stable_edges"])
-          assert doc["middleware"]["beam_code_reload_requires_drain_or_otp_proof"] is True
-          assert doc["verification"]["shared_conformance_required"] is True
-          assert doc["verification"]["product_e2e_required"] is True
-          assert doc["verification"]["promotion_state"] == "candidate"
-          print("generation contract OK")
-          PY
+          cargo test --manifest-path tools/generation-contract-validator/Cargo.toml
+          cargo run --quiet --manifest-path tools/generation-contract-validator/Cargo.toml -- ores-generation-contract.json
