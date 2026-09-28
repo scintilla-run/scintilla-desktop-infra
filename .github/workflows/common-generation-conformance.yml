@@ -1,0 +1,35 @@
+name: common-generation-conformance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          path: consumer
+      - name: Check out exact merged shared authority
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: ORESoftware/ores-common-desktop-infra
+          ref: c98aee842535429bc07b5e4437a2fb84d8f00d25
+          token: ${{ secrets.FLEET_GITHUB_READ_TOKEN }}
+          persist-credentials: false
+          path: common
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
+        with:
+          toolchain: 1.82.0
+          components: rustfmt, clippy
+      - name: Test shared router generation semantics
+        working-directory: common
+        run: cargo test --locked -p ores-common-desktop-router
+      - name: Test shared generation conformance
+        working-directory: common
+        run: cargo test --locked -p ores-common-desktop-conformance
