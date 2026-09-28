@@ -2,11 +2,12 @@
   "schema": "ores.desktop-hot-reload/v1",
   "product": "scintilla",
   "default": {
-    "route_backend": "native_atomic",
-    "middleware_code_reload": "process_generation",
+    "route_backend": "beam",
+    "middleware_code_reload": "beam_hot_code",
     "front_proxy": "none",
     "proxy_managed_application_routes": false,
-    "route_drain_timeout_ms": 300000
+    "route_drain_timeout_ms": 300000,
+    "max_old_generations": 2
   },
   "supported_front_proxies": [
     "none",
@@ -36,5 +37,5 @@
     "arbitrary_native_middleware_in_router_process": false,
     "bounded_old_generation_drain": true
   },
-  "rationale": "Non-Beam default for Scintilla: keep routing/middleware independent of native/container workers; BEAM remains an optional adapter rather than a requirement."
+  "rationale": "Scintilla currently ships a BEAM ingress/control plane, so the hardened default matches deployed reality. Native atomic, external-process, Wasm, and proxy-owned declarative routing remain selectable adapter paths without coupling compute lifetime to middleware."
 }
