@@ -6,7 +6,7 @@
   },
   "authority": {
     "repository": "ORESoftware/ores-common-desktop-infra",
-    "revision": "895ed4e43f0d9a6bc39dfd4688e0b5009b1c10ef",
+    "revision": "c98aee842535429bc07b5e4437a2fb84d8f00d25",
     "pull_request": 9
   },
   "lifecycle": [
