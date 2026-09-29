@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Validate immutable common-layer pin and promotion gates
+      - name: Validate immutable common-layer pin and quota gates
         shell: bash
         run: |
           set -euo pipefail
@@ -28,12 +28,22 @@ jobs:
           appliance = JSON.parse(File.read("appliance.json"))
           common = appliance.fetch("common_layer")
           gates = appliance.fetch("promotion_gates")
-          expected = "c98aee842535429bc07b5e4437a2fb84d8f00d25"
+          revision = common.fetch("revision").to_s
+
           abort "common repository drifted" unless common.fetch("repository") == "ORESoftware/ores-common-desktop-infra"
           abort "common layer must remain pinned" unless common.fetch("status") == "pinned"
-          abort "common revision drifted" unless common.fetch("revision") == expected
+          abort "common revision must be immutable 40-hex" unless revision.match?(/\A[0-9a-f]{40}\z/)
+          abort "quota capability missing" unless common.fetch("capabilities").include?("quota-admission")
           abort "pin gate must be true" unless gates.fetch("common_layer_pinned") == true
           abort "CI evidence must stay fail-closed until executable certification succeeds" unless gates.fetch("common_layer_ci_verified") == false
+          abort "quota wiring must stay fail-closed until daemon enforcement is proven" unless gates.fetch("quota_admission_wired") == false
+
+          quota_path = appliance.fetch("quota_admission_profile")
+          quota = JSON.parse(File.read(quota_path))
+          abort "quota authority drifted" unless quota.fetch("authority") == "common-layer"
+          abort "quota identity must use shared-auth" unless quota.fetch("identity_source") == "shared-auth"
+          abort "quota windows drifted" unless quota.fetch("required_request_windows_seconds").sort == [60, 600, 3600]
+          abort "JWT live counters are forbidden" unless quota.fetch("jwt_live_counters") == false
           RUBY
 
   private-checker:
@@ -45,6 +55,18 @@ jobs:
         with:
           persist-credentials: false
           path: consumer
+      - name: Read reviewed common-layer revision
+        id: pin
+        working-directory: consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          revision="$(ruby -rjson -e 'puts JSON.parse(File.read("appliance.json")).fetch("common_layer").fetch("revision")')"
+          test "${#revision}" -eq 40
+          case "$revision" in
+            *[!0-9a-f]*) exit 2 ;;
+          esac
+          echo "revision=$revision" >> "$GITHUB_OUTPUT"
       - name: Require approved fleet read credential
         shell: bash
         env:
@@ -56,14 +78,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: ORESoftware/ores-common-desktop-infra
-          ref: c98aee842535429bc07b5e4437a2fb84d8f00d25
+          ref: ${{ steps.pin.outputs.revision }}
           token: ${{ secrets.FLEET_GITHUB_READ_TOKEN }}
           persist-credentials: false
           path: consumer/tmp/dev/ores-common-desktop-infra
       - name: Execute pinned common Rust consumer checker
         working-directory: consumer
         env:
-          ORES_COMMON_DESKTOP_EXPECTED_REVISION: c98aee842535429bc07b5e4437a2fb84d8f00d25
+          ORES_COMMON_DESKTOP_EXPECTED_REVISION: ${{ steps.pin.outputs.revision }}
         run: |
           set -euo pipefail
           test "$(git -C tmp/dev/ores-common-desktop-infra rev-parse HEAD)" = "$ORES_COMMON_DESKTOP_EXPECTED_REVISION"
