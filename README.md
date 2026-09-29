@@ -52,6 +52,8 @@ Linux uses a hardened systemd user unit, macOS uses the `run.scintilla.desktop-d
 - BEAM ingress: loopback-only at `127.0.0.1:8091`;
 - runtime/worker schemas live under `manifests/`;
 - Cloudflare credential contents stay in cloudflared's local credential store;
+- bootstrap/common infra owns account-level tunnel/DNS provisioning; the desktop daemon owns repeated tunnel process lifecycle;
+- daemon-side DNS mutation is explicit fallback behavior only and must remain journaled/reconciled;
 - updates are exact-revision/digest based; mutable `latest` is forbidden;
 - worker runtimes/capabilities are allowlisted;
 - remote shell and arbitrary client commands are disabled.
