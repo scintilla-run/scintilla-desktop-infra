@@ -65,3 +65,13 @@ Once the common repository is available, migration must be atomic:
 
 Mutable branches or tags are not acceptable release dependencies.
 
+## Cloudflare ownership boundary
+
+Cloudflare account-level provisioning and ordinary desktop runtime supervision are separate authorities:
+
+- **bootstrap/common desktop infra** owns login, named-tunnel creation, DNS route creation/change, and the approved credential-file path;
+- **scintilla-desktop-daemon** owns repeated start/stop/restart of an already-provisioned `cloudflared` process;
+- the daemon's typed DNS mutation endpoint is an explicit compatibility/developer fallback only. When deliberately used, it must keep the external side effect journaled and require reconciliation after an uncertain timeout/crash outcome.
+
+Normal runtime reconciliation and daemon restart must not require Cloudflare account-level DNS authority. Credential contents remain outside Git and outside Scintilla client payloads.
+
