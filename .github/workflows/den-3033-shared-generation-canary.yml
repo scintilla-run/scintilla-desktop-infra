@@ -1,0 +1,59 @@
+name: den-3033-shared-generation-canary
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: den-3033-shared-generation-canary-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shared-generation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out canary repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          path: consumer
+
+      - name: Require approved fleet read credential
+        shell: bash
+        env:
+          FLEET_GITHUB_READ_TOKEN: ${{ secrets.FLEET_GITHUB_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$FLEET_GITHUB_READ_TOKEN"
+
+      - name: Check out exact shared generation authority candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: ORESoftware/ores-common-desktop-infra
+          ref: a737611571a1dd77ae9d57bf3124f3418371bb43
+          token: ${{ secrets.FLEET_GITHUB_READ_TOKEN }}
+          persist-credentials: false
+          path: shared
+
+      - name: Verify exact candidate revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C shared rev-parse HEAD)" = "a737611571a1dd77ae9d57bf3124f3418371bb43"
+
+      - name: Check Rust formatting
+        working-directory: shared
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo fmt --all -- --check
+
+      - name: Test shared workspace
+        working-directory: shared
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test --workspace --locked
