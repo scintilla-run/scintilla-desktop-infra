@@ -30,6 +30,27 @@
     "wasm_generation",
     "declarative_only"
   ],
+  "release_activation": {
+    "runtime_family": "native_rust",
+    "preferred_strategy": "process_generation",
+    "fallback_strategy": "process_generation",
+    "allow_native_dynamic_library_hot_swap": false,
+    "code_middleware_routes_one_transaction": true,
+    "drain_timeout_ms": 300000,
+    "max_old_generations": 2,
+    "capabilities": {
+      "supports_process_generation": true,
+      "supports_in_process_generation": false,
+      "supports_parallel_generations": false,
+      "supports_pre_activation_health_check": true,
+      "supports_atomic_activation": true,
+      "supports_inflight_generation_pinning": true,
+      "supports_graceful_drain": true,
+      "supports_generation_rollback": true,
+      "supports_generation_fault_containment": true,
+      "code_loading_boundary": "process"
+    }
+  },
   "invariants": {
     "routing_middleware_separate_from_compute": true,
     "route_change_restarts_standalone_server": false,
@@ -37,5 +58,5 @@
     "arbitrary_native_middleware_in_router_process": false,
     "bounded_old_generation_drain": true
   },
-  "rationale": "Scintilla currently ships a BEAM ingress/control plane, so the hardened default matches deployed reality. Native atomic, external-process, Wasm, and proxy-owned declarative routing remain selectable adapter paths without coupling compute lifetime to middleware."
+  "rationale": "Scintilla keeps BEAM routing/middleware hot reload but treats native/non-BEAM application releases as supervised process generations. Code, middleware, and routes still share one atomic release-generation transaction; native FFI hot swapping is not used."
 }
