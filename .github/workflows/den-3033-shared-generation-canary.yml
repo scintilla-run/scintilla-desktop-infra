@@ -1,7 +1,9 @@
 name: den-3033-shared-generation-canary
 
 on:
-  pull_request:
+  push:
+    branches:
+      - DEN-3033-shared-generation-canary
 
 permissions:
   contents: read
