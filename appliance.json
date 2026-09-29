@@ -75,7 +75,10 @@
     ],
     "public_ingress_ready": false,
     "origin_auth": "dedicated-remote-auth-required",
-    "promotion_reason": "The declared public BEAM ingress is not yet started by the ores-compose local graph; keep tunnel promotion blocked until origin lifecycle and dedicated remote authentication are wired."
+    "promotion_reason": "The declared public BEAM ingress is not yet started by the ores-compose local graph; keep tunnel promotion blocked until origin lifecycle and dedicated remote authentication are wired.",
+    "dns_route_owner": "bootstrap",
+    "runtime_owner": "desktop-daemon",
+    "daemon_dns_mutation": "explicit-journaled-fallback"
   },
   "update": {
     "mode": "exact-revision",
