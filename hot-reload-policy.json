@@ -48,7 +48,8 @@
       "supports_graceful_drain": true,
       "supports_generation_rollback": true,
       "supports_generation_fault_containment": true,
-      "code_loading_boundary": "process"
+      "code_loading_boundary": "process",
+      "in_process_generation_certified": false
     }
   },
   "invariants": {
