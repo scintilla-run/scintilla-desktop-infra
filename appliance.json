@@ -115,7 +115,7 @@
     "repository": "ORESoftware/ores-common-desktop-infra",
     "checkout_dir": "tmp/dev/ores-common-desktop-infra",
     "status": "pinned",
-    "revision": "c825fccca7c4179f5c02194453e1b448b73830f3",
+    "revision": "67695c27ab1592b2478d5db3c333338a493c41cc",
     "capabilities": [
       "cloudflare-policy",
       "conformance-suite",
@@ -137,6 +137,7 @@
       "runtime-adapter-abi",
       "runtime-isolation",
       "secret-file-policy",
+      "single-tenant-self-hosting",
       "stable-ingress",
       "structured-logging",
       "typed-mutation-auth",
