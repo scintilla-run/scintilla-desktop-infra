@@ -9,6 +9,13 @@
     "default_reverse_proxy": "none",
     "requires_public_ip": false
   },
+  "self_hosting": {
+    "ownership": "customer",
+    "tenancy": "single",
+    "default_backend": "ores_compose",
+    "kubernetes_default": "k3s",
+    "external_kubernetes_supported": true
+  },
   "components": [
     {
       "name": "desktop-daemon",
@@ -108,7 +115,7 @@
     "repository": "ORESoftware/ores-common-desktop-infra",
     "checkout_dir": "tmp/dev/ores-common-desktop-infra",
     "status": "pinned",
-    "revision": "21851fcb6ca59fe4cfe887d882dac78d90548ce4",
+    "revision": "c825fccca7c4179f5c02194453e1b448b73830f3",
     "capabilities": [
       "cloudflare-policy",
       "conformance-suite",
