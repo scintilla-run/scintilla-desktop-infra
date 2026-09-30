@@ -47,7 +47,7 @@ jobs:
           RUBY
 
   private-checker:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -82,6 +82,13 @@ jobs:
           token: ${{ secrets.FLEET_GITHUB_READ_TOKEN }}
           persist-credentials: false
           path: consumer/tmp/dev/ores-common-desktop-infra
+      - name: Verify pinned common Rust infra package
+        working-directory: consumer/tmp/dev/ores-common-desktop-infra
+        run: |
+          set -euo pipefail
+          cargo fmt --manifest-path infra/rust/Cargo.toml -- --check
+          cargo clippy --locked -p ores-common-desktop-infra --all-targets -- -D warnings -A clippy::needless_return
+          cargo test --locked -p ores-common-desktop-infra --all-targets
       - name: Execute pinned common Rust consumer checker
         working-directory: consumer
         env:
