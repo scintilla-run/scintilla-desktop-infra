@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Validate immutable common-layer pin and quota gates
+      - name: Validate immutable common-layer pin and self-hosting gates
         shell: bash
         run: |
           set -euo pipefail
@@ -28,12 +28,21 @@ jobs:
           appliance = JSON.parse(File.read("appliance.json"))
           common = appliance.fetch("common_layer")
           gates = appliance.fetch("promotion_gates")
+          orchestrator = appliance.fetch("orchestrator")
+          self_hosting = appliance.fetch("self_hosting")
           revision = common.fetch("revision").to_s
 
           abort "common repository drifted" unless common.fetch("repository") == "ORESoftware/ores-common-desktop-infra"
           abort "common layer must remain pinned" unless common.fetch("status") == "pinned"
           abort "common revision must be immutable 40-hex" unless revision.match?(/\A[0-9a-f]{40}\z/)
           abort "quota capability missing" unless common.fetch("capabilities").include?("quota-admission")
+          abort "single-tenant self-hosting capability missing" unless common.fetch("capabilities").include?("single-tenant-self-hosting")
+          abort "self-hosting ownership must be customer" unless self_hosting.fetch("ownership") == "customer"
+          abort "self-hosting tenancy must be single" unless self_hosting.fetch("tenancy") == "single"
+          abort "single-machine backend must default to ores-compose" unless self_hosting.fetch("default_backend") == "ores_compose"
+          abort "Kubernetes backend must default to k3s" unless self_hosting.fetch("kubernetes_default") == "k3s"
+          abort "external customer Kubernetes must remain supported" unless self_hosting.fetch("external_kubernetes_supported") == true
+          abort "active single-machine orchestrator must remain ores-compose" unless orchestrator.fetch("engine") == "ores-compose"
           abort "pin gate must be true" unless gates.fetch("common_layer_pinned") == true
           abort "CI evidence must stay fail-closed until executable certification succeeds" unless gates.fetch("common_layer_ci_verified") == false
           abort "quota wiring must stay fail-closed until daemon enforcement is proven" unless gates.fetch("quota_admission_wired") == false
@@ -82,6 +91,13 @@ jobs:
           token: ${{ secrets.FLEET_GITHUB_READ_TOKEN }}
           persist-credentials: false
           path: consumer/tmp/dev/ores-common-desktop-infra
+      - name: Verify pinned common Rust infra package
+        working-directory: consumer/tmp/dev/ores-common-desktop-infra
+        run: |
+          set -euo pipefail
+          cargo fmt --manifest-path infra/rust/Cargo.toml -- --check
+          cargo clippy --locked -p ores-common-desktop-infra --all-targets -- -D warnings -A clippy::needless_return
+          cargo test --locked -p ores-common-desktop-infra --all-targets
       - name: Execute pinned common Rust consumer checker
         working-directory: consumer
         env:
