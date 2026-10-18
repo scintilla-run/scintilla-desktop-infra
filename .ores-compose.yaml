@@ -3,13 +3,13 @@ project: scintilla-desktop
 allow_lazy_start: false
 source:
   repository: https://github.com/scintilla-run/scintilla-desktop-daemon.git
-  commit: 64367fb904ca86aa531b0f937695d496524e4fa1
+  commit: 8e25231d3ec08672e1d0a67780f43a84d41a2045
   checkout_dir: tmp/dev/scintilla-desktop-daemon
 services:
   daemon:
     runtime: host
     build:
-      - ["cargo", "build", "--release"]
+      - ["cargo", "build", "--release", "--locked"]
     command: ["./target/release/scintilla-desktop-daemon"]
     environment:
       SCINTILLA_DESKTOP_ADDR: "127.0.0.1:8765"
