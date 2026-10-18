@@ -11,7 +11,23 @@ lock = json.loads((ROOT / "components.lock.json").read_text())
 appliance = json.loads((ROOT / "appliance.json").read_text())
 runtime_template = json.loads((ROOT / "runtime/desktop-manifest.example.json").read_text())
 
+
 errors = []
+
+compose_source = (ROOT / ".ores-compose.yaml").read_text()
+daemon = next((item for item in appliance.get("components", []) if item.get("name") == "desktop-daemon"), {})
+daemon_sha = daemon.get("rev", "")
+locked_ref = lock.get("components", {}).get("desktop_daemon", {}).get("ref", "")
+compose_shas = re.findall(r"(?m)^  commit: ([0-9a-f]{40})$", compose_source)
+if not re.fullmatch(r"[0-9a-f]{40}", daemon_sha):
+    errors.append("daemon appliance revision must be an exact immutable SHA")
+if len(compose_shas) != 1 or compose_shas[0] != daemon_sha:
+    errors.append("daemon compose source revision must match appliance pin")
+if locked_ref != daemon_sha:
+    errors.append("components lock daemon ref must match appliance pin")
+if '["cargo", "build", "--release", "--locked"]' not in compose_source:
+    errors.append("daemon compose build must use cargo --locked")
+
 
 if example.get("schema") != "scintilla.desktop-runtime/v1":
     errors.append("local runtime schema id must be scintilla.desktop-runtime/v1")
