@@ -3,7 +3,7 @@
   "components": {
     "desktop_daemon": {
       "repository": "scintilla-run/scintilla-desktop-daemon",
-      "ref": "main",
+      "ref": "8e25231d3ec08672e1d0a67780f43a84d41a2045",
       "sha256": "REPLACE_DURING_RELEASE"
     },
     "ingress": {
