@@ -24,4 +24,4 @@ jobs:
         run: |
           set -euo pipefail
           cargo test --manifest-path tools/generation-contract-validator/Cargo.toml
-          cargo run --quiet --manifest-path tools/generation-contract-validator/Cargo.toml -- ores-generation-contract.json
+          cargo run --quiet --manifest-path tools/generation-contract-validator/Cargo.toml --bin scintilla-generation-contract-validator -- ores-generation-contract.json
