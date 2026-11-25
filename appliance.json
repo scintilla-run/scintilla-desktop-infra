@@ -20,7 +20,7 @@
     {
       "name": "desktop-daemon",
       "repo": "scintilla-run/scintilla-desktop-daemon",
-      "rev": "64367fb904ca86aa531b0f937695d496524e4fa1",
+      "rev": "8e25231d3ec08672e1d0a67780f43a84d41a2045",
       "kind": "rust",
       "promoted": false
     },
@@ -95,11 +95,11 @@
   },
   "promotion_gates": {
     "private_repo_ci_evidence": false,
-    "daemon_ci_green": false,
+    "daemon_ci_green": true,
     "cli_ci_green": false,
     "standalone_beam_shipment": false,
     "public_ingress_ready": false,
-    "daemon_lockfile_committed": false,
+    "daemon_lockfile_committed": true,
     "common_layer_pinned": true,
     "common_layer_ci_verified": false,
     "quota_admission_wired": false

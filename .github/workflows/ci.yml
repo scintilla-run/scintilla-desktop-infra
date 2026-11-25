@@ -21,7 +21,10 @@ jobs:
       - run: python scripts/validate_manifest.py
       - run: python -m json.tool appliance.json >/dev/null
       - run: python -m json.tool runtime/desktop-manifest.example.json >/dev/null
-      - run: python tests/manifest-contract/check.py
+      - name: test Rust manifest contract validator
+        run: cargo test --manifest-path tools/generation-contract-validator/Cargo.toml --bin manifest-contract
+      - name: validate desktop manifest/control-plane contract
+        run: cargo run --manifest-path tools/generation-contract-validator/Cargo.toml --bin manifest-contract
       - run: bash -n scripts/bootstrap.sh scripts/doctor.sh scripts/up.sh scripts/down.sh scripts/status.sh scripts/install-service.sh scripts/uninstall-service.sh
       - name: Parse PowerShell lifecycle scripts
         shell: pwsh

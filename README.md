@@ -72,7 +72,7 @@ ores-compose up .ores-compose.yaml
 
 Cloudflare/public ingress remains promotion-gated until the standalone BEAM ingress and dedicated remote-auth boundary are in the compose lifecycle.
 
-The daemon source is exact-commit pinned, loopback-only, and executed from the built release binary. Stable promotion remains blocked until the daemon repository commits a Cargo lockfile and the build switches to `--locked`.
+The daemon source is exact-commit pinned, loopback-only, and executed from the built release binary. The daemon is pinned to an exact Git commit with a tracked Cargo lockfile and is built with `--locked`. Source-head daemon CI has passed, but stable promotion remains blocked by the *other* outstanding appliance and ingress gates.
 
 See [docs/local-deployment.md](docs/local-deployment.md) and [appliance.json](appliance.json) for the audited boundary and promotion gates.
 
